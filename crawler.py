@@ -1,6 +1,7 @@
 import json
 import os
 import hashlib
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from selenium.webdriver.support.ui import WebDriverWait
@@ -72,54 +73,60 @@ def crawl_blacksuite(site_url, site_name):
 
     driver.quit()
     
-    
-    
-def crawl_bianlianl(site_url, site_name):
-    driver = settings()
-    driver.get(site_url)
-    
-    # 페이지 HTML 파싱
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+def crawl_bianlianl(url, site_name):
+    proxies = {
+    'http': 'socks5h://127.0.0.1:9050',
+    'https': 'socks5h://127.0.0.1:9050'
+    }
     save_dir = create_save_dir('json', site_name)
-    
     existing_hashes = get_existing_post_hashes(save_dir)
-    # 모든 포스트를 찾아서 처리
-    posts = soup.find_all('section', class_='list-item')
-    for idx, post in enumerate(posts):
-        # 1. 타이틀 추출
-        title = post.find('h1', class_='title').get_text(strip=True)
-            
-        # 2. 설명 정보 추출
-        description = post.find('div', class_='description').get_text(strip=True)
-            
-        # 3. 'read more'에 있는 URL 추출
-        read_more_link = post.find('a', class_='readmore')['href']
-            
-        # 결과를 저장할 딕셔너리 초기화
-        result = {
-            'title': title,
-            'description': description,
-            'read_more_url': read_more_link,
-            'additional_info': None
-        }
-            
-        # 4. 'read more' 링크를 따라가 추가 정보 추출
-        additional_url = site_url + read_more_link
-        driver.get(additional_url)
-            
-         # 추가로 추출하고자 하는 정보를 추출
-        soup_additional = BeautifulSoup(driver.page_source, 'html.parser')
-        additional_info = soup_additional.find('div', class_='additional-info')
-        if additional_info:
-            result['additional_info'] = additional_info.get_text(strip=True)
-            
-        # Create a hash from title and url
-        hash_value = hash_data(title, read_more_link)
+    
+    try:
+        response = requests.get(url, proxies=proxies)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f'Initial request error: {e}')
+        return
 
-        if hash_value not in existing_hashes:
-            save_post_data(save_dir, result, hash_value)
+    # 요청이 성공했는지 확인
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
         
-    driver.quit()
+        # 모든 포스트를 찾아서 처리
+        posts = soup.find_all('section', class_='list-item')
+        for post in posts:
+            # 1. 타이틀 추출
+            title = post.find('h1', class_='title').get_text(strip=True)
+            
+            # 2. 설명 정보 추출
+            description = post.find('div', class_='description').get_text(strip=True)
+            
+            # 3. 'read more'에 있는 URL 추출
+            read_more_link = post.find('a', class_='readmore')['href']
+            
+            # 결과를 저장할 딕셔너리 초기화
+            result = {
+                'title': title,
+                'description': description,
+                'read_more_url': read_more_link,
+                'additional_info': None
+            }
+            
+            # 4. 'read more' 링크를 따라가 추가 정보 추출
+            additional_url = url + read_more_link
+            response_additional = requests.get(additional_url, proxies=proxies)
+            
+            if response_additional.status_code == 200:
+                soup_additional = BeautifulSoup(response_additional.content, 'html.parser')
+                
+                # 추가로 추출하고자 하는 정보를 추출
+                additional_info = soup_additional.find('div', class_='additional-info')
+                if additional_info:
+                    result['additional_info'] = additional_info.get_text(strip=True)
+            # Create a hash from title and url
+            hash_value = hash_data(title, read_more_link)
+            if hash_value not in existing_hashes:
+                save_post_data(save_dir, result, hash_value)
 
 def crawl_3am(site_url, site_name):
     driver = settings()

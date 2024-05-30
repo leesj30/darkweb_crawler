@@ -120,3 +120,76 @@ def crawl_bianlianl(site_url, site_name):
             save_post_data(save_dir, result, hash_value)
         
     driver.quit()
+
+def crawl_3am(site_url, site_name):
+    driver = settings()
+    driver.get(site_url)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    save_dir = create_save_dir('json', site_name)
+    
+    existing_hashes = get_existing_post_hashes(save_dir)
+    # 'post bad' 클래스의 모든 포스트 찾기
+    posts = soup.find_all('div', class_='post bad')
+
+    if not posts:
+        print("No posts found. The structure of the webpage might have changed or the webpage is empty.")
+        
+    # 각 포스트에서 타이틀과 텍스트 정보를 추출하여 개별 JSON 파일로 저장
+    for idx, post in enumerate(posts):
+        title_block = post.find('div', class_='post-title-block')
+        text_block = post.find('div', class_='post-body').find('div', class_='post-text')  # post-text 요소 찾기
+
+        if title_block and text_block:
+            title = title_block.get_text(strip=True)
+            text = text_block.get_text(strip=True)
+            
+            # 데이터를 딕셔너리로 저장
+            data = {
+                'title': title,
+                'text': text
+            }
+            
+            # Create a hash from title and url
+            hash_value = hash_data(title, text)
+
+            if hash_value not in existing_hashes:
+                save_post_data(save_dir, data, hash_value)
+            
+    
+    driver.quit()
+
+#크롤링을 막아둬서인지, 데이터 수집이 안됨
+def crawl_blackbasta(site_url, site_name):
+    driver = settings()
+    driver.get(site_url)
+        
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    
+    save_dir = create_save_dir('json', site_name)
+    existing_hashes = get_existing_post_hashes(save_dir)
+    
+    cards = soup.select('.card')
+    for idx, card in enumerate(cards):
+        title = card.select_one('.title').text if card.select_one('.title') else 'No title'
+        blog_name_link = card.select_one('.blog_name_link')
+        blog_url = blog_name_link['href'] if blog_name_link else 'No URL'
+        p_element = card.select_one('p[data-v-md-line="5"]').text if card.select_one('p[data-v-md-line="5"]') else 'No content'
+
+        post_data = {
+            'title': title,
+            'url': blog_url,
+            'content': p_element
+        }
+
+        hash_value = hash_data(title, blog_url)
+
+        if hash_value not in existing_hashes:
+            save_post_data(save_dir, post_data, hash_value)
+    
+    driver.quit()
+    
+
+
+#crawl_blacksuite('http://weg7sdx54bevnvulapqu6bpzwztryeflq3s23tegbmnhkbpqz637f2yd.onion/', 'blacksuite')
+#crawl_bianlianl('http://bianlianlbc5an4kgnay3opdemgcryg2kpfcbgczopmm3dnbz3uaunad.onion', 'bianlianl')
+#crawl_3am('http://threeamkelxicjsaf2czjyz2lc4q3ngqkxhhlexyfcp2o6raw4rphyad.onion','3am')

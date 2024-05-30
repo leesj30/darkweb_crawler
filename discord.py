@@ -2,6 +2,7 @@ import requests
 
 DISCORD_WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1245288715761356890/weaEDKbF5Q1vfF7rTaxr52NzKDVBMqBwctvnimZj6ilLL9JJbUbacI8oH4jla1P426-T'
 
+#미완
 def send_discord_notification(post_data):
     content = f"New post found:\nTitle: {post_data['title']}\nURL: {post_data['url']}\nDescription: {post_data.get('description', 'No description')}"
     data = {

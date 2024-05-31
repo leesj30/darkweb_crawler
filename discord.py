@@ -5,14 +5,14 @@ DISCORD_WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1245288715761356890/w
 
 def send_to_discord(operator, data_type, data):
     """
-    디스코드 웹훅으로 데이터를 전송 메소드.
+    디스코드 웹훅으로 데이터를 전송하는 범용적인 메소드.
     
     :param operator: 운영자 정보
     :param data_type: 데이터 형식 ('post_data', 'result', 'data')
     :param data: 전송할 데이터 딕셔너리
     """
     
-    # 전송할 데이터의 공통 형식
+    # 전송할 데이터의 공통 형식을 만듭니다.
     payload = {
         'username': 'leaked message',  # 디스코드에서 표시될 봇의 이름
         'embeds': []
@@ -36,6 +36,15 @@ def send_to_discord(operator, data_type, data):
             'title': f"Victim Company: {data.get('title', 'N/A')} - Operator: {operator}",
             'description': data.get('text', 'N/A')
         }
+    elif data_type == 'detailed_data':
+        embed = {
+            'title': f"Victim Company: {data.get('title', 'N/A')} - Operator: {operator}",
+            'description': (
+                f"Date: {data.get('datetime', 'N/A')}\n"
+                f"Summary: {data.get('entry_summary', 'N/A')}\n"
+                f"Leaked Data Size: {data.get('leaked_data_size', 'N/A')}\n"
+            )
+        }
     else:
         raise ValueError("Invalid data_type provided. Choose from 'post_data', 'result', or 'data'.")
     
@@ -45,12 +54,13 @@ def send_to_discord(operator, data_type, data):
     
     payload['embeds'].append(embed)
     
-    # 디스코드 웹훅으로 POST 요청
+    # 디스코드 웹훅으로 POST 요청을 보냅니다.
     response = requests.post(DISCORD_WEBHOOK_URL, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
     
-    # 요청 결과를 반환
+    # 요청 결과를 반환합니다.
     if response.status_code == 204:
         print("메시지가 성공적으로 전송되었습니다.")
     else:
         print(f"메시지 전송 실패: {response.status_code}, {response.text}")
+
 

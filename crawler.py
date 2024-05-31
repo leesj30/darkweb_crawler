@@ -199,4 +199,4 @@ def crawl_blackbasta(site_url, site_name):
 
 #crawl_blacksuite('http://weg7sdx54bevnvulapqu6bpzwztryeflq3s23tegbmnhkbpqz637f2yd.onion/', 'blacksuite')
 #crawl_bianlianl('http://bianlianlbc5an4kgnay3opdemgcryg2kpfcbgczopmm3dnbz3uaunad.onion', 'bianlianl')
-#crawl_3am('http://threeamkelxicjsaf2czjyz2lc4q3ngqkxhhlexyfcp2o6raw4rphyad.onion','3am')
+crawl_3am('http://threeamkelxicjsaf2czjyz2lc4q3ngqkxhhlexyfcp2o6raw4rphyad.onion','3am')

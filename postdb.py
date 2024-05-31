@@ -27,13 +27,17 @@ def search_data(keyword):
     query = {
         "$or": [
             {"title": {"$regex": keyword, "$options": "i"}},
-            {"text": {"$regex": keyword, "$options": "i"}}
+            {"text": {"$regex": keyword, "$options": "i"}},
+            {"description": {"$regex": keyword, "$options": "i"}},
         ]
     }
     results = collection.find(query)
-    return list(results)
-
-# directory = 'C:\\Users\\zia20\\Documents\\GitHub\\darkweb_crawler\\posts\\3am'
+    result_list = []
+    for result in results:
+        result['_id'] = str(result['_id'])  # Convert ObjectId to string
+        result_list.append(result)
+    return result_list
+# directory = 'C:\\Users\\zia20\\Documents\\GitHub\\darkweb_crawler\\json\\blacksuite'
 # process_all_files(directory)
 
 # transfer_network_documents()

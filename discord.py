@@ -14,7 +14,7 @@ def send_to_discord(operator, data_type, data):
     
     # 전송할 데이터의 공통 형식을 만듭니다.
     payload = {
-        'username': 'leaked message',  # 디스코드에서 표시될 봇의 이름
+        'username': 'Leak Notification',  # 디스코드에서 표시될 봇의 이름
         'embeds': []
     }
     

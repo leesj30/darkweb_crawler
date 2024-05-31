@@ -76,7 +76,7 @@
                 background-color: rgba(0,0,0,0.4);
             }
 
-            .modal-content {
+            .modal_content {
                 background-color: #fefefe;
                 margin: 15% auto;
                 padding: 20px;
@@ -109,8 +109,8 @@
                 <thead>
                     <tr>
                         <th>Victim</th>
+                        <th>Operator</th>
                         <th>Details</th>
-                        <th>Links</th>
                         <th>More..</th>
                     </tr>
                 </thead>
@@ -118,53 +118,55 @@
                     {% for result in results %}
                         <tr>
                             <td>{{ result.title }}</td>
-                            <td>{{ result.text }}
-                                {{ result.description }}</td>
-                            <td>{{ result.links }}</td>
+                            <td>{{ result.operator }}</td>
+                            <td>{{ result.text }} {{ result.description }} {{ result.entry_summary }}</td>
                             <td>
-                                <span class="details-icon" data-full-text=
-                                "
-                                Read More Url: {{result.read_more_url}}
-                                Additional Info: {{ result.additional_info }}
-                                ">&#128269;</span>
+                                <span class="details-icon" 
+                                      data_company_url="{{ result.read_more_url }}" 
+                                      data_leaked_files="{{ result.links }}"
+                                      data_leaked_data_size="{{ result.leaked_data_size}}"
+                                      data_datetime="{{ result.datetime }}"
+                                      data-additional-info="{{ result.additional_info }}">
+                                      &#128269;
+                                </span>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <!-- The Modal -->
-        <div id="myModal" class="modal">
-            <div class="modal-content">
+    
+        <div id="More_modal" class="modal">
+            <div class="modal_content">
                 <span class="close">&times;</span>
-                <p id="modal-text"></p>
+                <p id="modal_text"></p>
             </div>
         </div>
-
         <script>
-            var modal = document.getElementById("myModal");
-            var modalText = document.getElementById("modal-text");
-            var span = document.getElementsByClassName("close")[0];
-
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
+            document.addEventListener("DOMContentLoaded", function() {
+                var modal = document.getElementById("More_modal");
+                var modalText = document.getElementById("modal_text");
+                var span = document.getElementsByClassName("close")[0];
+    
+                span.onclick = function() {
                     modal.style.display = "none";
                 }
-            }
 
-            document.querySelectorAll('.details-icon').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    var fullText = element.getAttribute('data-full-text');
-                    modalText.textContent = fullText;
-                    modal.style.display = "block";
+                document.querySelectorAll('.details-icon').forEach(function(element) {
+                    element.addEventListener('click', function() {
+                        var companyUrl = element.getAttribute('data_company_url');
+                        var leakedFiles = element.getAttribute('data_leaked_files');
+                        var leakedDataSize = element.getAttribute('data_leaked_data_size');
+                        var dateTime = element.getAttribute('data_datetime');
+                        var additionalInfo = element.getAttribute('data-additional-info');
+
+                        var moreContent = `<strong> Victim Company Url:</strong> ${companyUrl} <br> <strong>Leaked Files:</strong> ${leakedFiles} <br> <strong>Leaked Data Size:</strong> ${leakedDataSize} <br> 
+                                            <strong>Leaked Data:</strong> ${dateTime} <strong><br> Additional Info:</strong> ${additionalInfo}`;
+                        modalText.innerHTML = moreContent;
+                        modal.style.display = "block";
+                    });
                 });
             });
-
         </script>
     </body>
 </html>

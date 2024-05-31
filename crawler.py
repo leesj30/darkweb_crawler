@@ -59,9 +59,9 @@ def crawl_blacksuite(site_url, site_name):
 
         post_data = {
             'title': title,
-            'url': url,
             'text': text,
-            'links': links
+            'links': links,
+            'operator':'blacksuite'
         }
 
      # Create a hash from title and url
@@ -109,7 +109,8 @@ def crawl_bianlianl(url, site_name):
                 'title': title,
                 'description': description,
                 'read_more_url': read_more_link,
-                'additional_info': None
+                'additional_info': None,
+                'operator':'bianlianl'
             }
             
             # 4. 'read more' 링크를 따라가 추가 정보 추출
@@ -154,7 +155,8 @@ def crawl_3am(site_url, site_name):
             # 데이터를 딕셔너리로 저장
             data = {
                 'title': title,
-                'text': text
+                'text': text,
+                'operator':'3am'
             }
             
             # Create a hash from title and url

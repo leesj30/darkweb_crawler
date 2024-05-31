@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-#from discord import send_discord_notification
+from discord import send_to_discord
 from driver_settings import settings
 
 #pip install selenium webdriver-manager beautifulsoup4 stem requests[socks] 필요
@@ -37,7 +37,6 @@ def save_post_data(save_dir, post_data, hash_value):
     with open(json_file_path, 'w', encoding='utf-8') as f:
         json.dump(post_data, f, ensure_ascii=False, indent=4)
     print(f"Post data has been saved to {json_file_path}")
-    #send_discord_notification(post_data)
 
 # 웹사이트 크롤링 함수
 def crawl_blacksuite(site_url, site_name):
@@ -70,6 +69,7 @@ def crawl_blacksuite(site_url, site_name):
 
         if hash_value not in existing_hashes:
             save_post_data(save_dir, post_data, hash_value)
+            send_to_discord('blacksuite', 'post_data', post_data)
 
     driver.quit()
     
@@ -127,6 +127,7 @@ def crawl_bianlianl(url, site_name):
             hash_value = hash_data(title, read_more_link)
             if hash_value not in existing_hashes:
                 save_post_data(save_dir, result, hash_value)
+                send_to_discord('bianlianl', 'result', result)
 
 def crawl_3am(site_url, site_name):
     driver = settings()
@@ -161,7 +162,7 @@ def crawl_3am(site_url, site_name):
 
             if hash_value not in existing_hashes:
                 save_post_data(save_dir, data, hash_value)
-            
+                send_to_discord('3am', 'data', data)
     
     driver.quit()
 
